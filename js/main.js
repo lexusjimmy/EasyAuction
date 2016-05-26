@@ -14,9 +14,13 @@ var viewMo = new ViewModal($("#view-modal"));
 var firstTime = true;
 
 firebase.auth().onAuthStateChanged(function (user) {
-  if (user && firstTime) {
+  if (firstTime) {
     firebase.database().ref("items").on("value",reProduceAll);
-    logginOption(true);
+    if (user) {
+      logginOption(true);
+    }else{
+      logginOption(false);
+    }
     firstTime =false;
     currentUser = user;
   }else if (user && !firstTime) {
@@ -124,25 +128,26 @@ function reProduceAll(allItems) {
     produceSingleItem(sinItemData);
   }
 }
-
+// 每點開一次就註冊一次
 function produceSingleItem(sinItemData){
   firebase.database().ref("users/"+sinItemData.seller+ "/name").once("value",function (nameSpa) {
     sinItemData.sellerName = nameSpa.val();
-    var tempItem = new Item(sinItemData, currentUser);
+    var tempItem = new Item(sinItemData,currentUser);
     $("#items").append(tempItem.dom);
     tempItem.viewBtn.click(function () {
       viewMo.writeData({title:sinItemData.title, price: sinItemData.price, descrip: sinItemData.descrip});
       viewMo.callImage(sinItemData.itemKey, sinItemData.seller);
-      var messBox = new MessageBox(currentUser);
+      var messBox = new MessageBox(currentUser, sinItemData.itemKey);
       $("#message").append(messBox.dom);
-      if (messBox.inputBox) {
+      if (currentUser) {
         $("#message").append(messBox.inputBox);
-        messBox.submitFunction =function (word) {
+        messBox.submitFunction = function (word,itemKey,uid) {
+          console.log(word,uid);
           var messa = {};
           var sinTimeK = new Date().getTime();
-          messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/time"]= new Date().getTime();
-          messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/message"]= word;
-          messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/userKey"]= currentUser.uid;
+          messa["/messages/"+itemKey+"/"+ sinTimeK+uid+"/time"]= new Date().getTime();
+          messa["/messages/"+itemKey+"/"+ sinTimeK+uid+"/message"]= word;
+          messa["/messages/"+itemKey+"/"+ sinTimeK+uid+"/userKey"]= uid;
           firebase.database().ref().update(messa);
         }
       }
@@ -151,7 +156,6 @@ function produceSingleItem(sinItemData){
         var dataMess = data.val();
         if(dataMess){
           for (var messKey in dataMess) {
-            
             generateDialog(dataMess[messKey], messBox);
           }
         }
