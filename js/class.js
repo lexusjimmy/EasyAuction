@@ -246,7 +246,6 @@ class ViewModal {
     this._modalDom.find(".descrip").text("");
     this._modalDom.find(".photo").css("background-image","url()");
     this._modalDom.find("#message").empty();
-    console.log(this._itemKey);
     firebase.database().ref("messages/"+this._itemKey).off();
   }
   callImage(itemKey,sellerKey){
@@ -285,19 +284,7 @@ class MessageBox {
       this._inputBox = $("<div>",{class:"media"}).append(
         $("<div>",{class: "media-left"}).append($("<img>",{class:"media-object", src: this._currUser.photoURL, alt: this._currUser.displayName}))
       ).append($("<div>",{class:"media-body"}).append($("<h4>",{class:"media-heading", text: this._currUser.displayName})).append($("<input>",{id:"dialog"})));
-      $(document).off("keypress","#dialog",dialogKeypressCallback);
-      $(document).on("keypress","#dialog",dialogKeypressCallback);
-      console.info("dialogKeypressCallback attached");
-      function dialogKeypressCallback (e) {
-        console.log("WTF");
-        if (e.which == 13) {
-          if (root._submitFunc != "undefined") {
-            root._submitFunc($(this).val(), root._itemKey, root._currUser.uid);
-            console.log(root._itemKey);
-            $(this).val("");
-          }
-        }
-      }
+
     }
 
   }

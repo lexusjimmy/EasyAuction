@@ -141,18 +141,19 @@ function produceSingleItem(sinItemData){
       $("#message").append(messBox.dom);
       if (currentUser) {
         $("#message").append(messBox.inputBox);
-        messBox.submitFunction = function (word,itemKey,uid) {
-          console.log(word,uid);
-          var messa = {};
-          var sinTimeK = new Date().getTime();
-          messa["/messages/"+itemKey+"/"+ sinTimeK+uid+"/time"]= new Date().getTime();
-          messa["/messages/"+itemKey+"/"+ sinTimeK+uid+"/message"]= word;
-          messa["/messages/"+itemKey+"/"+ sinTimeK+uid+"/userKey"]= uid;
-          firebase.database().ref().update(messa);
-        }
+        messBox.inputBox.keypress(function (e) {
+          if (e.which == 13) {
+            var messa = {};
+            var sinTimeK = new Date().getTime();
+            messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/time"]= new Date().getTime();
+            messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/message"]= $(this).find("#dialog").val();
+            messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/userKey"]= currentUser.uid;
+            firebase.database().ref().update(messa);
+          }
+        });
       }
 
-      firebase.database().ref("messages/"+sinItemData.itemKey).orderByChild("time").once("value",function(data) {
+      firebase.database().ref("messages/"+sinItemData.itemKey).orderByChild("time").on("value",function(data) {
         var dataMess = data.val();
         if(dataMess){
           for (var messKey in dataMess) {
