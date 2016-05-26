@@ -268,6 +268,7 @@ class MessageBox {
     this._inputBox;
     this._submitFunc;
     this._itemKey;
+    this._dialogs =[];
     this._checkAndAdd(currentuser, itemKey);
   }
   _checkAndAdd(currentuser, itemKey){
@@ -288,12 +289,29 @@ class MessageBox {
     }
 
   }
-  addDialog(message, userName, picURL){
+  addDialog(data){
+    this._dialogs.push(data);
+    this._dialogs.sort(function (a,b) {
+      if(a.time> b.time){ return 1;}
+      if (a.time< b.time) {return -1}
+      return 0;
+    })
+    $(".messages").empty();
+    for (var i = 0; i < this._dialogs.length; i++) {
+      var sinDia = this._dialogs[i];
+      this._addDialog(sinDia.message, sinDia.name, sinDia.picURL);
+    }
+  }
+  _addDialog(message, userName, picURL){
     var sinDialog = $("<div>", {class: "media"}).append($("<div>",{class:"media-left"}).append($("<img>",{class: "media-object", src: picURL, alt: userName}))).append($("<div>",{class:"media-body"}));
     sinDialog.children(".media-body").append($("<h4>", {text:userName, class:"media-heading"})).append($("<p>",{text: message}));
-    $(".messages").prepend(sinDialog);
+    $(".messages").append(sinDialog);
   }
-
+  refresh(){
+    for (var i = 0; i < this._dialogs.length; i++) {
+      this._dialogs.pop();
+    }
+  }
   set submitFunction(subFunc){
     this._submitFunc = subFunc;
     //console.log(this._submitFunc);
@@ -310,5 +328,8 @@ class MessageBox {
   }
   get userName(){
     return this._currUser.displayName;
+  }
+  get itemKey(){
+    return this._itemKey;
   }
 }

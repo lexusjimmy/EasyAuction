@@ -148,7 +148,9 @@ function produceSingleItem(sinItemData){
             messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/time"]= new Date().getTime();
             messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/message"]= $(this).find("#dialog").val();
             messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/userKey"]= currentUser.uid;
+            //messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/name"]= currentUser.displayName;
             firebase.database().ref().update(messa);
+            $(this).find("#dialog").val("");
           }
         });
       }
@@ -173,10 +175,13 @@ function produceSingleItem(sinItemData){
 
 function generateDialog(diaData, messageBox) {
   $("#message .messages").empty();
+  messageBox.refresh();
 
   firebase.database().ref("users/"+ diaData.userKey).once("value",function (data) {
     var userData = data.val();
-    messageBox.addDialog(diaData.message, userData.name, userData.picURL);
+    diaData["name"]=userData.name;
+    diaData["picURL"]= userData.picURL;
+    messageBox.addDialog(diaData);
   })
 }
 
