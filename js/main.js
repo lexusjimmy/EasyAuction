@@ -140,17 +140,18 @@ function produceSingleItem(sinItemData){
         messBox.submitFunction =function (word) {
           var messa = {};
           var sinTimeK = new Date().getTime();
-          messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/time"]= new Date().toLocaleString();
+          messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/time"]= new Date().getTime();
           messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/message"]= word;
           messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/userKey"]= currentUser.uid;
           firebase.database().ref().update(messa);
         }
       }
 
-      firebase.database().ref("messages/"+sinItemData.itemKey).orderByKey().on("value",function(data) {
+      firebase.database().ref("messages/"+sinItemData.itemKey).orderByChild("time").once("value",function(data) {
         var dataMess = data.val();
         if(dataMess){
           for (var messKey in dataMess) {
+            
             generateDialog(dataMess[messKey], messBox);
           }
         }
