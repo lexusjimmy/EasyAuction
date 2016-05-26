@@ -119,6 +119,11 @@ function logginOption(isLoggin) {
 
 
 function reProduceAll(allItems) {
+    /*
+    清空頁面上 (#item)內容上的東西。
+    讀取爬回來的每一個商品
+    */
+    
   $("#items").empty();
   var allItemVal = allItems.val();
   var i = 0 ;
@@ -130,30 +135,50 @@ function reProduceAll(allItems) {
 }
 // 每點開一次就註冊一次
 function produceSingleItem(sinItemData){
+  /*
+    抓取 sinItemData 節點上的資料。
+    將名字設定到 sinItemData
+    創建 Item 物件，並顯示到頁面上。
+  */
+    
   firebase.database().ref("users/"+sinItemData.seller+ "/name").once("value",function (nameSpa) {
     sinItemData.sellerName = nameSpa.val();
     var tempItem = new Item(sinItemData,currentUser);
     $("#items").append(tempItem.dom);
     tempItem.viewBtn.click(function () {
+      /*
+        用 ViewModal 填入這筆 item 的資料
+        呼叫 ViewModal callImage打開圖片
+        創建一個 MessageBox 物件，將 Message 的結構顯示上 #message 裡。
+      */    
       viewMo.writeData({title:sinItemData.title, price: sinItemData.price, descrip: sinItemData.descrip});
       viewMo.callImage(sinItemData.itemKey, sinItemData.seller);
       var messBox = new MessageBox(currentUser, sinItemData.itemKey);
       $("#message").append(messBox.dom);
+        
+      /*
+        判斷使用者是否有登入，如果有登入就讓 #message 容器顯示輸入框。
+        在 MessageBox 上面註冊事件，當 submit 時將資料上傳。
+      */
       if (currentUser) {
         $("#message").append(messBox.inputBox);
-        messBox.inputBox.keypress(function (e) {
-          if (e.which == 13) {
-            var messa = {};
-            var sinTimeK = new Date().getTime();
-            messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/time"]= new Date().getTime();
-            messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/message"]= $(this).find("#dialog").val();
-            messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/userKey"]= currentUser.uid;
-            firebase.database().ref().update(messa);
-          }
-        });
+        messBox.submitFunction = function (word,itemKey,uid) {
+          console.log(word,uid);
+          var messa = {};
+          var sinTimeK = new Date().getTime();
+          messa["/messages/"+itemKey+"/"+ sinTimeK+uid+"/time"]= new Date().getTime();
+          messa["/messages/"+itemKey+"/"+ sinTimeK+uid+"/message"]= word;
+          messa["/messages/"+itemKey+"/"+ sinTimeK+uid+"/userKey"]= uid;
+          firebase.database().ref().update(messa);
+        }
       }
 
-      firebase.database().ref("messages/"+sinItemData.itemKey).orderByChild("time").on("value",function(data) {
+    /*
+    判斷使用者是否有單入，如果有登入就讓 #message 容器顯示輸入框。
+    在 MessageBox 上面註冊事件，在 submit 時將資料上傳。
+    使用 messageBox.addDialog 讓每一則留言都能顯示上去。 
+    */
+      firebase.database().ref("messages/"+sinItemData.itemKey).orderByChild("time").once("value",function(data) {
         var dataMess = data.val();
         if(dataMess){
           for (var messKey in dataMess) {
@@ -162,6 +187,10 @@ function produceSingleItem(sinItemData){
         }
       });
     });
+    
+    /*
+    如果使用者有登入，替 editBtn 監聽事件，當使用者點選編輯按鈕時，將資料顯示上 uploadModal。
+    */
     if (tempItem.editBtn) {
       tempItem.editBtn.click(function () {
         uploadMo.editData(sinItemData);
