@@ -13,39 +13,24 @@ var uploadMo = new UploadModal($("#upload-modal"));
 var viewMo = new ViewModal($("#view-modal"));
 var firstTime = true;
 
+
 firebase.auth().onAuthStateChanged(function (user) {
-  if (firstTime) {
-    firebase.database().ref("items").on("value",reProduceAll);
-    if (user) {
-      logginOption(true);
-    }else{
-      logginOption(false);
-    }
-    firstTime =false;
-    currentUser = user;
-  }else if (user && !firstTime) {
-    firebase.database().ref("items").once("value",reProduceAll);
-    logginOption(true);
-    currentUser = user;
+    
+/* 
+    分為三種使用情形：
+    1. 初次登入，改變成登入狀態
+    2. 已為登入狀態，reload 網站照樣顯示登入狀態
+    3. 未登入狀態
+    
+    登入/當初狀態顯示可使用下方 logginOption function
+*/
 
-  }else {
-    firebase.database().ref("items").once("value",reProduceAll);
-    logginOption(false);
-    currentUser = user;
-
-  }
 });
 
 
 $("#signin").click(function () {
   firebase.auth().signInWithPopup(fbProvider).then(function (result) {
-    var user = result.user;
-    firebase.database().ref("users").orderByKey().equalTo(user.uid).once("value",function (userD) {
-      var newUser ={};
-      newUser["/"+user.uid+ "/name"] = user.displayName;
-      newUser["/"+user.uid+ "/picURL"] = user.photoURL;
-      firebase.database().ref("users").update(newUser);
-    });
+    // 登入後的頁面行為
   }).catch(function (error) {
     var errorCode = error.code;
     var errorMessa = error.message;
@@ -55,54 +40,32 @@ $("#signin").click(function () {
 
 $("#signout").click(function () {
   firebase.auth().signOut().then(function() {
-    logginOption(false);
+    // 登出後的頁面行為
   },function (error) {
     console.log(error.code);
   });
 });
 
 $("#submitData").click(function () {
-  var dataArr = $("#item-info").serializeArray();
-  if (dataArr[0].value != null && dataArr[1].value != null && dataArr[2].value != null && $("#picData")[0].files[0]){
-    uploadMo.itemKey = firebase.database().ref("items").push({"title":dataArr[0].value, "price":parseInt(dataArr[1].value), "descrip":dataArr[2].value, "userTime": new Date($.now()).toLocaleString(), "seller": currentUser.uid}).key;
-    var tempData = {};
-    tempData["/sellItems/"+uploadMo.itemKey]= true;
-    firebase.database().ref("users/"+currentUser.uid).update(tempData);
-    uploadMo.submitPic(currentUser.uid);
-  }
+    // 上傳新商品
 });
 
 $("#editData").click(function () {
-  var dataArr = $("#item-info").serializeArray();
-  if (dataArr[0].value != null && dataArr[1].value != null && dataArr[2].value != null){
-    firebase.database().ref("items/"+ uploadMo.itemKey).update({"title":dataArr[0].value, "price":parseInt(dataArr[1].value), "descrip":dataArr[2].value, "userTime": new Date($.now()).toLocaleString(), "seller": currentUser.uid});
-    if ($("#picData")[0].files[0]) {
-      uploadMo.submitPic(currentUser.uid);
-    }else {
-      $("#upload-modal").modal("hide");
-    }
-  }
+    // 編輯商品資訊
 })
 
 $("#removeData").click(function () {
-  firebase.database().ref("items/"+ uploadMo.itemKey).remove();
-  firebase.database().ref("users/"+ currentUser.uid+"/sellItems/"+uploadMo.itemKey).set(null);
-  firebase.database().ref("messages/"+ uploadMo.itemKey).remove();
-  uploadMo.deletePic(currentUser.uid);
+    //刪除商品
 })
 
-$("#price-select span:nth-of-type(1)").click(function (event) {
-  firebase.database().ref("items").once("value", reProduceAll);
-});
 
-$("#price-select span:nth-of-type(2)").click(function (event) {
-  firebase.database().ref("items").orderByChild("price").startAt(10000).once("value",reProduceAll);
-});
-
-$("#price-select span:nth-of-type(3)").click(function (event) {
-  firebase.database().ref("items").orderByChild("price").endAt(9999).once("value",reProduceAll);
-});
-
+/*
+    三種商品篩選方式：
+    1. 顯示所有商品
+    2. 顯示價格高於 NT$10000 的商品
+    3. 顯示價格低於 NT$9999 的商品
+    
+*/
 
 
 function logginOption(isLoggin) {
@@ -141,19 +104,18 @@ function produceSingleItem(sinItemData){
       $("#message").append(messBox.dom);
       if (currentUser) {
         $("#message").append(messBox.inputBox);
-        messBox.inputBox.keypress(function (e) {
-          if (e.which == 13) {
-            var messa = {};
-            var sinTimeK = new Date().getTime();
-            messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/time"]= new Date().getTime();
-            messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/message"]= $(this).find("#dialog").val();
-            messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/userKey"]= currentUser.uid;
-            firebase.database().ref().update(messa);
-          }
-        });
+        messBox.submitFunction = function (word,itemKey,uid) {
+          console.log(word,uid);
+          var messa = {};
+          var sinTimeK = new Date().getTime();
+          messa["/messages/"+itemKey+"/"+ sinTimeK+uid+"/time"]= new Date().getTime();
+          messa["/messages/"+itemKey+"/"+ sinTimeK+uid+"/message"]= word;
+          messa["/messages/"+itemKey+"/"+ sinTimeK+uid+"/userKey"]= uid;
+          firebase.database().ref().update(messa);
+        }
       }
 
-      firebase.database().ref("messages/"+sinItemData.itemKey).orderByChild("time").on("value",function(data) {
+      firebase.database().ref("messages/"+sinItemData.itemKey).orderByChild("time").once("value",function(data) {
         var dataMess = data.val();
         if(dataMess){
           for (var messKey in dataMess) {
