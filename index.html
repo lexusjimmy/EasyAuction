@@ -6,7 +6,8 @@
 	<meta name="viewport" content="width=device-width; initial-scale=1.0">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
+	
+	<script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 	<title>EasyAuction</title>
@@ -16,7 +17,7 @@
 		<nav class="navbar navbar-default navbar-fixed-top nav-customized">
 			<div class="container">
 				<div class="navbar-header">
-				    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#uni-collapse" aria-expanded="false">
+				    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#easy-collapse" aria-expanded="false">
 				        <span class="sr-only">Toggle navigation</span>
 				        <span class="icon-bar"></span>
 				        <span class="icon-bar"></span>
@@ -24,7 +25,7 @@
 				    </button>
 				    <div class="navbar-brand">easy auction</div>
 				</div>
-				<div class="collapse navbar-collapse">
+				<div class="collapse navbar-collapse" id="easy-collapse">
 				    <ul class="nav navbar-nav navbar-right"> 
 				    	<li><a href="#" id="signin">sign in/up with facebook</a></li>
 				    	<li><a href="#" id="signout">sign out</a></li>
@@ -33,11 +34,23 @@
 				</div>
 			</div>
 		</nav>
+	
 	<div class="wrapper">	
+	<div class="btn-group"> 
+		<button type="button" class="btn btn-default">Price Filter</button> 
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> 
+			<span class="caret"></span> 
+			<span class="sr-only">Toggle Dropdown</span> 
+		</button> 
+		<ul class="dropdown-menu" > 
+			<li><a href="#">All</a></li> 
+			<li><a href="#">$10000 ▲</a></li> 
+			<li><a href="#">$9999 ▼</a></li> 
+		</ul> 
+	</div>
 		<div id="items" class="item-block">
 			
 		</div>
-		<div id="price-select"><span class="badge">show all</span><span class="badge">$10000 ▲</span><span class="badge">$9999 ▼</span></div>
 	</div>
 	<div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel">
 		<div class="modal-dialog" role="document">

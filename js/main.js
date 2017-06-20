@@ -91,15 +91,18 @@ $("#removeData").click(function () {
   uploadMo.deletePic(currentUser.uid);
 })
 
-$("#price-select span:nth-of-type(1)").click(function (event) {
+$(".dropdown-menu li:nth-of-type(1)").click(function (event) {
+  event.preventDefault();
   firebase.database().ref("items").once("value", reProduceAll);
 });
 
-$("#price-select span:nth-of-type(2)").click(function (event) {
+$(".dropdown-menu li:nth-of-type(2)").click(function (event) {
+  event.preventDefault();
   firebase.database().ref("items").orderByChild("price").startAt(10000).once("value",reProduceAll);
 });
 
-$("#price-select span:nth-of-type(3)").click(function (event) {
+$(".dropdown-menu li:nth-of-type(3)").click(function (event) {
+  event.preventDefault();
   firebase.database().ref("items").orderByChild("price").endAt(9999).once("value",reProduceAll);
 });
 
@@ -142,7 +145,9 @@ function produceSingleItem(sinItemData){
       if (currentUser) {
         $("#message").append(messBox.inputBox);
         messBox.inputBox.keypress(function (e) {
+
           if (e.which == 13) {
+            e.preventDefault();
             var messa = {};
             var sinTimeK = new Date().getTime();
             messa["/messages/"+sinItemData.itemKey+"/"+ sinTimeK+currentUser.uid+"/time"]= new Date().getTime();
@@ -158,6 +163,7 @@ function produceSingleItem(sinItemData){
       firebase.database().ref("messages/"+sinItemData.itemKey).orderByChild("time").on("value",function(data) {
         var dataMess = data.val();
         if(dataMess){
+          messBox.refresh();
           for (var messKey in dataMess) {
             generateDialog(dataMess[messKey], messBox);
           }
@@ -174,9 +180,8 @@ function produceSingleItem(sinItemData){
 }
 
 function generateDialog(diaData, messageBox) {
-  $("#message .messages").empty();
-  messageBox.refresh();
-
+  //$("#message .messages").empty();
+  //messageBox.refresh();
   firebase.database().ref("users/"+ diaData.userKey).once("value",function (data) {
     var userData = data.val();
     diaData["name"]=userData.name;

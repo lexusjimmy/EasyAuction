@@ -295,7 +295,8 @@ class MessageBox {
       if(a.time> b.time){ return 1;}
       if (a.time< b.time) {return -1}
       return 0;
-    })
+    });
+
     $(".messages").empty();
     for (var i = 0; i < this._dialogs.length; i++) {
       var sinDia = this._dialogs[i];
@@ -308,13 +309,13 @@ class MessageBox {
     $(".messages").append(sinDialog);
   }
   refresh(){
-    for (var i = 0; i < this._dialogs.length; i++) {
-      this._dialogs.pop();
-    }
+    this._dialogDom.find(".messages").empty();
+    this._dialogs = [];
+
   }
   set submitFunction(subFunc){
     this._submitFunc = subFunc;
-    //console.log(this._submitFunc);
+
   }
   get dom(){
     return this._dialogDom;
