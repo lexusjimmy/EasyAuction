@@ -19,6 +19,10 @@
   -o-flex-wrap: wrap;
   flex-wrap: wrap; }
 
+  .media-object img{
+    width: 40px;
+  }
+
 @media screen and (min-width: 400px) {
   .sale-item {
     width: 50%;
