@@ -304,7 +304,7 @@ class MessageBox {
     }
   }
   _addDialog(message, userName, picURL){
-    var sinDialog = $("<div>", {class: "media"}).append($("<div>",{class:"media-left"}).append().append($("<div>",{class:"media-body"}));
+    var sinDialog = $("<div>", {class: "media"}).append($("<div>",{class:"media-left"}).append()).append($("<div>",{class:"media-body"}));
     sinDialog.children(".media-body").append($("<h4>", {text:userName, class:"media-heading"})).append($("<p>",{text: message}));
     $(".messages").append(sinDialog);
   }
