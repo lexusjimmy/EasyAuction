@@ -60,6 +60,7 @@
   .sale-item .name-price p:first-of-type {
     color: #aaaaaa; }
 .sale-item .seller > a {
+  cursor: auto;
   color: #aaaaaa; }
 
 #upload-modal .picBox {
