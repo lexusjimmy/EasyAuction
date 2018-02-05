@@ -283,7 +283,7 @@ class MessageBox {
     if (this._hasLoggin) {
       var root = this;
       this._inputBox = $("<div>",{class:"media"}).append(
-        $("<div>",{class: "media-left"}).append($("<img>",{class:"media-object", src: this._currUser.photoURL, alt: this._currUser.displayName}))
+        $("<div>",{class: "media-left"}))
       ).append($("<div>",{class:"media-body"}).append($("<h4>",{class:"media-heading", text: this._currUser.displayName})).append($("<input>",{id:"dialog"})));
 
     }
